@@ -1,26 +1,101 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0f0f13;
+  --surface: #1a1a24;
+  --surface2: #22222e;
+  --border: #2e2e3e;
+  --text: #e8e8f0;
+  --text-muted: #8888aa;
+  --accent: #6366f1;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  font-family: 'Inter', 'Hiragino Sans', 'Yu Gothic', sans-serif;
 }
+
+/* FullCalendar overrides */
+.fc {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: var(--surface);
+  --fc-today-bg-color: rgba(99,102,241,0.08);
+  --fc-event-bg-color: #6366f1;
+  --fc-event-border-color: #6366f1;
+  --fc-now-indicator-color: #f59e0b;
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.fc .fc-button {
+  background: var(--surface2) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+  font-size: 0.75rem !important;
+  padding: 0.25rem 0.6rem !important;
+}
+
+.fc .fc-button:hover {
+  background: var(--border) !important;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+.fc .fc-col-header-cell {
+  background: var(--surface);
+  padding: 4px 0;
+}
+
+.fc .fc-timegrid-slot {
+  height: 24px;
+}
+
+.fc .fc-timegrid-slot-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.fc-timegrid-event-harness > .fc-timegrid-event {
+  inset: 1px 2px !important;
+}
+
+.fc-event {
+  border-radius: 4px !important;
+  border-width: 4px !important;
+  padding: 1px 4px !important;
+  font-size: 0.72rem !important;
+  cursor: pointer;
+}
+
+
+.fc-event-main {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Button hover feedback */
+button:not(:disabled) {
+  cursor: pointer;
+}
+button:not(:disabled):hover {
+  filter: brightness(0.85);
+}
+button:not(:disabled):active {
+  filter: brightness(0.75);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }

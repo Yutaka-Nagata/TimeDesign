@@ -1,0 +1,352 @@
+{
+  "version": 2,
+  "exportedAt": "2026-06-21T00:00:00.000Z",
+
+  "goals": [
+    {
+      "id": "goal-eng",
+      "title": "専門性の高いエンジニアになる",
+      "targetDate": "2027-03-31",
+      "color": "#22c55e"
+    },
+    {
+      "id": "goal-health",
+      "title": "健康的な生活習慣を築く",
+      "targetDate": "2026-12-31",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "goal-creative",
+      "title": "創造的なインプットを深める",
+      "targetDate": "2027-03-31",
+      "color": "#a855f7"
+    },
+    {
+      "id": "goal-growth",
+      "title": "語学・自己成長",
+      "targetDate": "2026-12-31",
+      "color": "#f97316"
+    }
+  ],
+
+  "themes": [
+    {
+      "id": "theme-algo",
+      "title": "アルゴリズム・競技プログラミング",
+      "startDate": "2026-04-01",
+      "endDate": "2026-09-30",
+      "unit": "month",
+      "relatedGoalId": "goal-eng"
+    },
+    {
+      "id": "theme-frontend",
+      "title": "Webフロントエンド開発",
+      "startDate": "2026-04-01",
+      "endDate": "2026-09-30",
+      "unit": "month",
+      "relatedGoalId": "goal-eng"
+    },
+    {
+      "id": "theme-infra",
+      "title": "バックエンド・インフラ",
+      "startDate": "2026-06-01",
+      "endDate": "2026-11-30",
+      "unit": "month",
+      "relatedGoalId": "goal-eng"
+    },
+    {
+      "id": "theme-run",
+      "title": "ランニング習慣",
+      "startDate": "2026-04-01",
+      "endDate": "2026-12-31",
+      "unit": "month",
+      "relatedGoalId": "goal-health"
+    },
+    {
+      "id": "theme-training",
+      "title": "筋トレ・体づくり",
+      "startDate": "2026-05-01",
+      "endDate": "2026-12-31",
+      "unit": "month",
+      "relatedGoalId": "goal-health"
+    },
+    {
+      "id": "theme-reading",
+      "title": "読書",
+      "startDate": "2026-01-01",
+      "endDate": "2026-12-31",
+      "unit": "month",
+      "relatedGoalId": "goal-creative"
+    },
+    {
+      "id": "theme-movie",
+      "title": "映画・ドキュメンタリー",
+      "startDate": "2026-01-01",
+      "endDate": "2026-12-31",
+      "unit": "month",
+      "relatedGoalId": "goal-creative"
+    },
+    {
+      "id": "theme-english",
+      "title": "英語学習",
+      "startDate": "2026-04-01",
+      "endDate": "2026-12-31",
+      "unit": "month",
+      "relatedGoalId": "goal-growth"
+    },
+    {
+      "id": "theme-reflect",
+      "title": "振り返り・日記",
+      "startDate": "2026-04-01",
+      "endDate": "2026-12-31",
+      "unit": "month",
+      "relatedGoalId": "goal-growth"
+    }
+  ],
+
+  "taskTemplates": [
+    {
+      "id": "tpl-atcoder",
+      "templateType": "reusable",
+      "title": "AtCoder 練習",
+      "estimatedMinutes": 60,
+      "memo": "ABC の過去問を2問解く",
+      "relatedThemeId": "theme-algo"
+    },
+    {
+      "id": "tpl-leetcode",
+      "templateType": "reusable",
+      "title": "LeetCode",
+      "estimatedMinutes": 45,
+      "memo": "Easy〜Medium 1問",
+      "relatedThemeId": "theme-algo"
+    },
+    {
+      "id": "tpl-react",
+      "templateType": "reusable",
+      "title": "React 実装練習",
+      "estimatedMinutes": 90,
+      "memo": "個人プロジェクトの機能実装",
+      "relatedThemeId": "theme-frontend"
+    },
+    {
+      "id": "tpl-css",
+      "templateType": "reusable",
+      "title": "CSS・デザイン研究",
+      "estimatedMinutes": 45,
+      "memo": "Dribbble 参考にコンポーネント模写",
+      "relatedThemeId": "theme-frontend"
+    },
+    {
+      "id": "tpl-docker",
+      "templateType": "reusable",
+      "title": "Docker / Linux 学習",
+      "estimatedMinutes": 60,
+      "memo": "ハンズオンで手を動かす",
+      "relatedThemeId": "theme-infra"
+    },
+    {
+      "id": "tpl-run",
+      "templateType": "reusable",
+      "title": "朝ランニング",
+      "estimatedMinutes": 30,
+      "memo": "5km、ペースは気にしない",
+      "relatedThemeId": "theme-run"
+    },
+    {
+      "id": "tpl-gym",
+      "templateType": "reusable",
+      "title": "筋トレ",
+      "estimatedMinutes": 45,
+      "memo": "腕・肩・体幹ローテ",
+      "relatedThemeId": "theme-training"
+    },
+    {
+      "id": "tpl-reading",
+      "templateType": "reusable",
+      "title": "読書",
+      "estimatedMinutes": 30,
+      "memo": "",
+      "relatedThemeId": "theme-reading"
+    },
+    {
+      "id": "tpl-movie",
+      "templateType": "reusable",
+      "title": "映画鑑賞",
+      "estimatedMinutes": 120,
+      "memo": "",
+      "relatedThemeId": "theme-movie"
+    },
+    {
+      "id": "tpl-english",
+      "templateType": "reusable",
+      "title": "英語リスニング",
+      "estimatedMinutes": 30,
+      "memo": "ELSA Speak + Podcast 1本",
+      "relatedThemeId": "theme-english"
+    },
+    {
+      "id": "tpl-anki",
+      "templateType": "reusable",
+      "title": "英単語 Anki",
+      "estimatedMinutes": 15,
+      "memo": "1日20枚",
+      "relatedThemeId": "theme-english"
+    },
+    {
+      "id": "tpl-journal",
+      "templateType": "reusable",
+      "title": "日次振り返り",
+      "estimatedMinutes": 15,
+      "memo": "今日の TIL と明日のタスクを書く",
+      "relatedThemeId": "theme-reflect"
+    },
+    {
+      "id": "todo-portfolio",
+      "templateType": "todo",
+      "title": "ポートフォリオサイト公開",
+      "estimatedMinutes": 120,
+      "memo": "Vercel にデプロイ、README 整備",
+      "relatedThemeId": "theme-frontend",
+      "dueDate": "2026-07-31"
+    },
+    {
+      "id": "todo-book",
+      "templateType": "todo",
+      "title": "「システム設計の教科書」購入・読了",
+      "estimatedMinutes": 60,
+      "memo": "",
+      "relatedThemeId": "theme-infra",
+      "dueDate": "2026-07-15"
+    },
+    {
+      "id": "todo-eiken",
+      "templateType": "todo",
+      "title": "英検準1級 申し込み",
+      "estimatedMinutes": 30,
+      "memo": "10月試験のエントリー",
+      "relatedThemeId": "theme-english",
+      "dueDate": "2026-07-10"
+    },
+    {
+      "id": "todo-gym-contract",
+      "templateType": "todo",
+      "title": "ジム会員更新手続き",
+      "estimatedMinutes": 30,
+      "memo": "",
+      "relatedThemeId": "theme-training",
+      "dueDate": "2026-06-30"
+    },
+    {
+      "id": "todo-race",
+      "templateType": "todo",
+      "title": "10kmレース エントリー",
+      "estimatedMinutes": 20,
+      "memo": "9月の市民マラソン",
+      "relatedThemeId": "theme-run",
+      "dueDate": "2026-07-01"
+    }
+  ],
+
+  "templates": [
+    {
+      "id": "tmpl-weekday",
+      "name": "平日ルーティン",
+      "isDefault": true,
+      "entries": [
+        { "taskId": "tpl-run",      "startTime": "07:00" },
+        { "taskId": "tpl-anki",     "startTime": "08:00" },
+        { "taskId": "tpl-atcoder",  "startTime": "09:00" },
+        { "taskId": "tpl-react",    "startTime": "10:30" },
+        { "taskId": "tpl-reading",  "startTime": "13:00" },
+        { "taskId": "tpl-english",  "startTime": "14:00" },
+        { "taskId": "tpl-journal",  "startTime": "22:00" }
+      ]
+    },
+    {
+      "id": "tmpl-weekend",
+      "name": "週末インプットデー",
+      "isDefault": false,
+      "entries": [
+        { "taskId": "tpl-gym",      "startTime": "09:00" },
+        { "taskId": "tpl-leetcode", "startTime": "10:30" },
+        { "taskId": "tpl-reading",  "startTime": "13:00" },
+        { "taskId": "tpl-docker",   "startTime": "14:30" },
+        { "taskId": "tpl-movie",    "startTime": "20:00" }
+      ]
+    }
+  ],
+
+  "tasks": [
+    { "id": "task-001", "date": "2026-06-02", "startTime": "07:00", "title": "朝ランニング",          "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-run",      "isDone": true,  "templateId": "tpl-run"      },
+    { "id": "task-002", "date": "2026-06-02", "startTime": "09:00", "title": "AtCoder 練習",          "estimatedMinutes": 60,  "memo": "ABC350 C問題まで",          "relatedThemeId": "theme-algo",     "isDone": true,  "templateId": "tpl-atcoder"  },
+    { "id": "task-003", "date": "2026-06-02", "startTime": "10:30", "title": "React 実装練習",        "estimatedMinutes": 90,  "memo": "カレンダーコンポーネント",  "relatedThemeId": "theme-frontend", "isDone": true,  "templateId": "tpl-react"    },
+    { "id": "task-004", "date": "2026-06-02", "startTime": "14:00", "title": "英語リスニング",        "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-english",  "isDone": true,  "templateId": "tpl-english"  },
+    { "id": "task-005", "date": "2026-06-02", "startTime": "22:00", "title": "日次振り返り",          "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-reflect",  "isDone": true,  "templateId": "tpl-journal"  },
+
+    { "id": "task-006", "date": "2026-06-04", "startTime": "07:00", "title": "朝ランニング",          "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-run",      "isDone": true,  "templateId": "tpl-run"      },
+    { "id": "task-007", "date": "2026-06-04", "startTime": "09:00", "title": "LeetCode",              "estimatedMinutes": 45,  "memo": "Two Sum / Valid Parentheses", "relatedThemeId": "theme-algo",  "isDone": true,  "templateId": "tpl-leetcode" },
+    { "id": "task-008", "date": "2026-06-04", "startTime": "10:30", "title": "CSS・デザイン研究",    "estimatedMinutes": 45,  "memo": "Tailwind カード UI 模写",   "relatedThemeId": "theme-frontend", "isDone": true,  "templateId": "tpl-css"      },
+    { "id": "task-009", "date": "2026-06-04", "startTime": "13:00", "title": "読書",                  "estimatedMinutes": 30,  "memo": "「Clean Code」5章",        "relatedThemeId": "theme-reading",  "isDone": true,  "templateId": "tpl-reading"  },
+    { "id": "task-010", "date": "2026-06-04", "startTime": "22:00", "title": "日次振り返り",          "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-reflect",  "isDone": true,  "templateId": "tpl-journal"  },
+
+    { "id": "task-011", "date": "2026-06-07", "startTime": "09:00", "title": "筋トレ",                "estimatedMinutes": 45,  "memo": "",                         "relatedThemeId": "theme-training", "isDone": true,  "templateId": "tpl-gym"      },
+    { "id": "task-012", "date": "2026-06-07", "startTime": "10:30", "title": "AtCoder 練習",          "estimatedMinutes": 60,  "memo": "ABC351 D問題挑戦",         "relatedThemeId": "theme-algo",     "isDone": true,  "templateId": "tpl-atcoder"  },
+    { "id": "task-013", "date": "2026-06-07", "startTime": "14:30", "title": "Docker / Linux 学習",  "estimatedMinutes": 60,  "memo": "コンテナ基礎",              "relatedThemeId": "theme-infra",    "isDone": true,  "templateId": "tpl-docker"   },
+    { "id": "task-014", "date": "2026-06-07", "startTime": "20:00", "title": "映画鑑賞",              "estimatedMinutes": 120, "memo": "her / 世界にひとつの彼女", "relatedThemeId": "theme-movie",    "isDone": true,  "templateId": "tpl-movie"    },
+
+    { "id": "task-015", "date": "2026-06-09", "startTime": "07:00", "title": "朝ランニング",          "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-run",      "isDone": true,  "templateId": "tpl-run"      },
+    { "id": "task-016", "date": "2026-06-09", "startTime": "08:00", "title": "英単語 Anki",           "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-english",  "isDone": true,  "templateId": "tpl-anki"     },
+    { "id": "task-017", "date": "2026-06-09", "startTime": "09:00", "title": "React 実装練習",        "estimatedMinutes": 90,  "memo": "ドラッグ&ドロップ実装",   "relatedThemeId": "theme-frontend", "isDone": true,  "templateId": "tpl-react"    },
+    { "id": "task-018", "date": "2026-06-09", "startTime": "14:00", "title": "英語リスニング",        "estimatedMinutes": 30,  "memo": "TED: Simon Sinek",         "relatedThemeId": "theme-english",  "isDone": true,  "templateId": "tpl-english"  },
+    { "id": "task-019", "date": "2026-06-09", "startTime": "22:00", "title": "日次振り返り",          "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-reflect",  "isDone": true,  "templateId": "tpl-journal"  },
+
+    { "id": "task-020", "date": "2026-06-11", "startTime": "09:00", "title": "筋トレ",                "estimatedMinutes": 45,  "memo": "",                         "relatedThemeId": "theme-training", "isDone": true,  "templateId": "tpl-gym"      },
+    { "id": "task-021", "date": "2026-06-11", "startTime": "10:30", "title": "LeetCode",              "estimatedMinutes": 45,  "memo": "Binary Search 系",         "relatedThemeId": "theme-algo",     "isDone": true,  "templateId": "tpl-leetcode" },
+    { "id": "task-022", "date": "2026-06-11", "startTime": "13:00", "title": "読書",                  "estimatedMinutes": 30,  "memo": "「Clean Code」6〜7章",     "relatedThemeId": "theme-reading",  "isDone": true,  "templateId": "tpl-reading"  },
+    { "id": "task-023", "date": "2026-06-11", "startTime": "14:30", "title": "Docker / Linux 学習",  "estimatedMinutes": 60,  "memo": "Docker Compose で環境構築", "relatedThemeId": "theme-infra",    "isDone": true,  "templateId": "tpl-docker"   },
+    { "id": "task-024", "date": "2026-06-11", "startTime": "20:00", "title": "映画鑑賞",              "estimatedMinutes": 120, "memo": "MONEYBALL",                "relatedThemeId": "theme-movie",    "isDone": true,  "templateId": "tpl-movie"    },
+
+    { "id": "task-025", "date": "2026-06-13", "startTime": "07:00", "title": "朝ランニング",          "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-run",      "isDone": true,  "templateId": "tpl-run"      },
+    { "id": "task-026", "date": "2026-06-13", "startTime": "09:00", "title": "AtCoder 練習",          "estimatedMinutes": 60,  "memo": "ABC352",                   "relatedThemeId": "theme-algo",     "isDone": true,  "templateId": "tpl-atcoder"  },
+    { "id": "task-027", "date": "2026-06-13", "startTime": "10:30", "title": "React 実装練習",        "estimatedMinutes": 90,  "memo": "カスタムフック整理",       "relatedThemeId": "theme-frontend", "isDone": true,  "templateId": "tpl-react"    },
+    { "id": "task-028", "date": "2026-06-13", "startTime": "14:00", "title": "英語リスニング",        "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-english",  "isDone": true,  "templateId": "tpl-english"  },
+    { "id": "task-029", "date": "2026-06-13", "startTime": "22:00", "title": "日次振り返り",          "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-reflect",  "isDone": true,  "templateId": "tpl-journal"  },
+
+    { "id": "task-030", "date": "2026-06-16", "startTime": "07:00", "title": "朝ランニング",          "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-run",      "isDone": true,  "templateId": "tpl-run"      },
+    { "id": "task-031", "date": "2026-06-16", "startTime": "08:00", "title": "英単語 Anki",           "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-english",  "isDone": true,  "templateId": "tpl-anki"     },
+    { "id": "task-032", "date": "2026-06-16", "startTime": "09:00", "title": "LeetCode",              "estimatedMinutes": 45,  "memo": "Sliding Window",           "relatedThemeId": "theme-algo",     "isDone": true,  "templateId": "tpl-leetcode" },
+    { "id": "task-033", "date": "2026-06-16", "startTime": "10:30", "title": "CSS・デザイン研究",    "estimatedMinutes": 45,  "memo": "グラスモーフィズム実験",   "relatedThemeId": "theme-frontend", "isDone": true,  "templateId": "tpl-css"      },
+    { "id": "task-034", "date": "2026-06-16", "startTime": "14:30", "title": "Docker / Linux 学習",  "estimatedMinutes": 60,  "memo": "Nginx リバースプロキシ",   "relatedThemeId": "theme-infra",    "isDone": true,  "templateId": "tpl-docker"   },
+    { "id": "task-035", "date": "2026-06-16", "startTime": "22:00", "title": "日次振り返り",          "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-reflect",  "isDone": true,  "templateId": "tpl-journal"  },
+
+    { "id": "task-036", "date": "2026-06-18", "startTime": "09:00", "title": "筋トレ",                "estimatedMinutes": 45,  "memo": "",                         "relatedThemeId": "theme-training", "isDone": true,  "templateId": "tpl-gym"      },
+    { "id": "task-037", "date": "2026-06-18", "startTime": "10:30", "title": "AtCoder 練習",          "estimatedMinutes": 60,  "memo": "ABC353",                   "relatedThemeId": "theme-algo",     "isDone": true,  "templateId": "tpl-atcoder"  },
+    { "id": "task-038", "date": "2026-06-18", "startTime": "13:00", "title": "読書",                  "estimatedMinutes": 30,  "memo": "「Clean Code」8〜9章",     "relatedThemeId": "theme-reading",  "isDone": true,  "templateId": "tpl-reading"  },
+    { "id": "task-039", "date": "2026-06-18", "startTime": "20:00", "title": "映画鑑賞",              "estimatedMinutes": 120, "memo": "The Social Network",       "relatedThemeId": "theme-movie",    "isDone": true,  "templateId": "tpl-movie"    },
+
+    { "id": "task-040", "date": "2026-06-20", "startTime": "07:00", "title": "朝ランニング",          "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-run",      "isDone": true,  "templateId": "tpl-run"      },
+    { "id": "task-041", "date": "2026-06-20", "startTime": "09:00", "title": "React 実装練習",        "estimatedMinutes": 90,  "memo": "ポートフォリオ統計画面",   "relatedThemeId": "theme-frontend", "isDone": true,  "templateId": "tpl-react"    },
+    { "id": "task-042", "date": "2026-06-20", "startTime": "14:00", "title": "英語リスニング",        "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-english",  "isDone": true,  "templateId": "tpl-english"  },
+    { "id": "task-043", "date": "2026-06-20", "startTime": "22:00", "title": "日次振り返り",          "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-reflect",  "isDone": true,  "templateId": "tpl-journal"  },
+
+    { "id": "task-044", "date": "2026-06-21", "startTime": "07:00", "title": "朝ランニング",          "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-run",      "isDone": false, "templateId": "tpl-run"      },
+    { "id": "task-045", "date": "2026-06-21", "startTime": "08:00", "title": "英単語 Anki",           "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-english",  "isDone": false, "templateId": "tpl-anki"     },
+    { "id": "task-046", "date": "2026-06-21", "startTime": "09:00", "title": "AtCoder 練習",          "estimatedMinutes": 60,  "memo": "",                         "relatedThemeId": "theme-algo",     "isDone": false, "templateId": "tpl-atcoder"  },
+    { "id": "task-047", "date": "2026-06-21", "startTime": "10:30", "title": "React 実装練習",        "estimatedMinutes": 90,  "memo": "",                         "relatedThemeId": "theme-frontend", "isDone": false, "templateId": "tpl-react"    },
+    { "id": "task-048", "date": "2026-06-21", "startTime": "14:00", "title": "英語リスニング",        "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-english",  "isDone": false, "templateId": "tpl-english"  },
+    { "id": "task-049", "date": "2026-06-21", "startTime": "22:00", "title": "日次振り返り",          "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-reflect",  "isDone": false, "templateId": "tpl-journal"  },
+
+    { "id": "task-050", "date": "2026-06-23", "startTime": "07:00", "title": "朝ランニング",          "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-run",      "isDone": false, "templateId": "tpl-run"      },
+    { "id": "task-051", "date": "2026-06-23", "startTime": "09:00", "title": "LeetCode",              "estimatedMinutes": 45,  "memo": "",                         "relatedThemeId": "theme-algo",     "isDone": false, "templateId": "tpl-leetcode" },
+    { "id": "task-052", "date": "2026-06-23", "startTime": "10:30", "title": "CSS・デザイン研究",    "estimatedMinutes": 45,  "memo": "",                         "relatedThemeId": "theme-frontend", "isDone": false, "templateId": "tpl-css"      },
+    { "id": "task-053", "date": "2026-06-23", "startTime": "14:30", "title": "Docker / Linux 学習",  "estimatedMinutes": 60,  "memo": "",                         "relatedThemeId": "theme-infra",    "isDone": false, "templateId": "tpl-docker"   },
+    { "id": "task-054", "date": "2026-06-23", "startTime": "20:00", "title": "映画鑑賞",              "estimatedMinutes": 120, "memo": "",                         "relatedThemeId": "theme-movie",    "isDone": false, "templateId": "tpl-movie"    },
+
+    { "id": "task-055", "date": "2026-06-25", "startTime": "09:00", "title": "筋トレ",                "estimatedMinutes": 45,  "memo": "",                         "relatedThemeId": "theme-training", "isDone": false, "templateId": "tpl-gym"      },
+    { "id": "task-056", "date": "2026-06-25", "startTime": "10:30", "title": "AtCoder 練習",          "estimatedMinutes": 60,  "memo": "",                         "relatedThemeId": "theme-algo",     "isDone": false, "templateId": "tpl-atcoder"  },
+    { "id": "task-057", "date": "2026-06-25", "startTime": "13:00", "title": "読書",                  "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-reading",  "isDone": false, "templateId": "tpl-reading"  },
+    { "id": "task-058", "date": "2026-06-25", "startTime": "14:00", "title": "英語リスニング",        "estimatedMinutes": 30,  "memo": "",                         "relatedThemeId": "theme-english",  "isDone": false, "templateId": "tpl-english"  },
+    { "id": "task-059", "date": "2026-06-25", "startTime": "22:00", "title": "日次振り返り",          "estimatedMinutes": 15,  "memo": "",                         "relatedThemeId": "theme-reflect",  "isDone": false, "templateId": "tpl-journal"  }
+  ]
+}
