@@ -89,7 +89,7 @@ function TemplateMenu({ templates, onApply }: { templates: Template[]; onApply: 
                 onClick={() => { onApply(tpl.entries); setOpen(false) }}
                 className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left transition-colors hover:opacity-80"
                 style={{ color: 'var(--text)' }}>
-                {tpl.isDefault && <StarIcon size={7} style={{ color: 'var(--accent)' }} />}
+                {tpl.isDefault && <span style={{ color: 'var(--accent)' }}><StarIcon size={7} /></span>}
                 <span>{tpl.name}</span>
                 <span className="ml-auto" style={{ color: 'var(--text-muted)' }}>{tpl.entries.length}件</span>
               </button>
