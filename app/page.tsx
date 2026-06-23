@@ -141,9 +141,9 @@ export default function Home() {
     db.deleteTask(id).catch(console.error)
   }
 
-  function handleClearDay(date: string) {
-    setTasks(prev => prev.filter(t => t.date !== date))
-    if (userId) db.deleteTasksByDate(userId, date).catch(console.error)
+  function handleClearDay(dates: string[]) {
+    setTasks(prev => prev.filter(t => !dates.includes(t.date)))
+    if (userId) db.deleteTasksByDates(userId, dates).catch(console.error)
   }
 
   function handleTaskUpdate(id: string, date: string, startTime: string, estimatedMinutes: number) {

@@ -21,7 +21,7 @@ interface Props {
   onSlotClick: (date: string, time: string) => void
   onTaskUpdate: (id: string, date: string, startTime: string, estimatedMinutes: number) => void
   onApplyTemplate: (entries: Template['entries']) => void
-  onClearDay: (date: string) => void
+  onClearDay: (dates: string[]) => void
 }
 
 function EventContent({ info, themes, goals, isWeek }: { info: EventContentArg; themes: MidTermTheme[]; goals: LongTermGoal[]; isWeek: boolean }) {
@@ -158,6 +158,15 @@ export default function CalendarPanel({
   const defaultTemplate = templates.find(t => t.isDefault)
   const navStep = calView === 'timeGridWeek' ? 7 : 1
 
+  // 週表示中に見えている7日分の日付を返す
+  function getVisibleDates(): string[] {
+    if (calView === 'timeGridDay') return [selectedDate]
+    const d = new Date(selectedDate + 'T00:00:00')
+    const sunday = new Date(d)
+    sunday.setDate(d.getDate() - d.getDay())
+    return Array.from({ length: 7 }, (_, i) => addDays(sunday.toLocaleDateString('sv'), i))
+  }
+
   const events = tasks
     .filter(t => calView === 'timeGridWeek' ? true : t.date === selectedDate)
     .map(t => {
@@ -277,16 +286,20 @@ export default function CalendarPanel({
 
         <div className="flex-1" />
 
-        {tasks.some(t => t.date === selectedDate) && (
-          <button
-            onClick={() => {
-              if (window.confirm('この日のタスクをすべて削除しますか？')) onClearDay(selectedDate)
-            }}
-            className="px-3 py-1 rounded-full text-xs font-medium transition-opacity hover:opacity-70"
-            style={{ background: 'var(--surface2)', color: '#ef4444' }}>
-            クリア
-          </button>
-        )}
+        {(() => {
+          const dates = getVisibleDates()
+          const hasTask = tasks.some(t => dates.includes(t.date))
+          const label = calView === 'timeGridWeek' ? 'この週をクリア' : 'クリア'
+          const confirm = calView === 'timeGridWeek' ? 'この週のタスクをすべて削除しますか？' : 'この日のタスクをすべて削除しますか？'
+          return hasTask && (
+            <button
+              onClick={() => { if (window.confirm(confirm)) onClearDay(dates) }}
+              className="px-3 py-1 rounded-full text-xs font-medium transition-opacity hover:opacity-70"
+              style={{ background: 'var(--surface2)', color: '#ef4444' }}>
+              {label}
+            </button>
+          )
+        })()}
 
         {templates.length > 0 && (
           <TemplateMenu templates={templates} onApply={onApplyTemplate} />
@@ -314,6 +327,11 @@ export default function CalendarPanel({
           editable
           eventResizableFromStart
           selectable={false}
+          navLinks={calView === 'timeGridWeek'}
+          navLinkDayClick={date => {
+            onDateChange(date.toLocaleDateString('sv'))
+            setCalView('timeGridDay')
+          }}
           eventContent={info => <EventContent info={info} themes={themes} goals={goals} isWeek={calView === 'timeGridWeek'} />}
           eventClick={info => {
             if (info.event.id === '__ghost__') return

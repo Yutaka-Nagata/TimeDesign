@@ -162,12 +162,13 @@ export async function deleteTask(id: string): Promise<void> {
   if (error) throw error
 }
 
-export async function deleteTasksByDate(userId: string, date: string): Promise<void> {
+export async function deleteTasksByDates(userId: string, dates: string[]): Promise<void> {
+  if (!dates.length) return
   const { error } = await supabase
     .from('tasks')
     .delete()
     .eq('user_id', userId)
-    .eq('date', date)
+    .in('date', dates)
   if (error) throw error
 }
 
