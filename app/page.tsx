@@ -185,13 +185,22 @@ export default function Home() {
     db.upsertTasks(newTasks).catch(console.error)
   }
 
-  function getDropTime(): string {
+  function getDropInfo(): { date: string; time: string } {
     const { x, y } = mousePos.current
+    let date = selectedDate
+    let time = '09:00'
     for (const el of document.elementsFromPoint(x, y)) {
-      const slot = (el as HTMLElement).closest?.('[data-time]') as HTMLElement | null
-      if (slot?.dataset.time) return slot.dataset.time.slice(0, 5)
+      if (time === '09:00') {
+        const slot = (el as HTMLElement).closest?.('[data-time]') as HTMLElement | null
+        if (slot?.dataset.time) time = slot.dataset.time.slice(0, 5)
+      }
+      if (date === selectedDate) {
+        const col = (el as HTMLElement).closest?.('[data-date]') as HTMLElement | null
+        if (col?.dataset.date) date = col.dataset.date
+      }
+      if (time !== '09:00' && date !== selectedDate) break
     }
-    return '09:00'
+    return { date, time }
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -200,10 +209,11 @@ export default function Home() {
     if (type !== 'taskTemplate' || !id) return
     const tpl = taskTemplates.find(t => t.id === id)
     if (!tpl) return
+    const { date, time } = getDropInfo()
     const newTask: Task = {
       id: uuid(),
-      date: selectedDate,
-      startTime: getDropTime(),
+      date,
+      startTime: time,
       title: tpl.title,
       estimatedMinutes: tpl.estimatedMinutes,
       memo: tpl.memo,

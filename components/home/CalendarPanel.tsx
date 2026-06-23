@@ -115,7 +115,7 @@ export default function CalendarPanel({
   // Ghost event tracking
   const mousePos = useRef({ x: 0, y: 0 })
   const prevGhostKey = useRef<string | null>(null)
-  const [ghostState, setGhostState] = useState<{ taskId: string; time: string } | null>(null)
+  const [ghostState, setGhostState] = useState<{ taskId: string; date: string; time: string } | null>(null)
 
   useEffect(() => {
     const h = (e: PointerEvent) => { mousePos.current = { x: e.clientX, y: e.clientY } }
@@ -130,17 +130,25 @@ export default function CalendarPanel({
         if (prevGhostKey.current !== null) { prevGhostKey.current = null; setGhostState(null) }
         return
       }
-      // elementsFromPoint pierces through the DragOverlay on top
       const { x, y } = mousePos.current
       let time: string | null = null
+      let date: string | null = null
       for (const el of document.elementsFromPoint(x, y)) {
-        const slot = (el as HTMLElement).closest?.('[data-time]') as HTMLElement | null
-        if (slot?.dataset.time) { time = slot.dataset.time.slice(0, 5); break }
+        if (!time) {
+          const slot = (el as HTMLElement).closest?.('[data-time]') as HTMLElement | null
+          if (slot?.dataset.time) time = slot.dataset.time.slice(0, 5)
+        }
+        if (!date) {
+          const col = (el as HTMLElement).closest?.('[data-date]') as HTMLElement | null
+          if (col?.dataset.date) date = col.dataset.date
+        }
+        if (time && date) break
       }
-      const key = time ? `${data.id}:${time}` : null
+      const resolvedDate = date ?? selectedDate
+      const key = time ? `${data.id}:${resolvedDate}:${time}` : null
       if (key !== prevGhostKey.current) {
         prevGhostKey.current = key
-        setGhostState(time && data.id ? { taskId: data.id, time } : null)
+        setGhostState(time && data.id ? { taskId: data.id, date: resolvedDate, time } : null)
       }
     },
     onDragEnd() { prevGhostKey.current = null; setGhostState(null) },
@@ -174,8 +182,8 @@ export default function CalendarPanel({
     return {
       id: '__ghost__',
       title: tpl.title,
-      start: `${selectedDate}T${ghostState.time}`,
-      end: `${selectedDate}T${addMinutes(ghostState.time, tpl.estimatedMinutes)}`,
+      start: `${ghostState.date}T${ghostState.time}`,
+      end: `${ghostState.date}T${addMinutes(ghostState.time, tpl.estimatedMinutes)}`,
       backgroundColor: color + '55',
       borderColor: color + 'aa',
       editable: false,
