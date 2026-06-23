@@ -6,7 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { EventContentArg } from '@fullcalendar/core'
 import { Task, TaskTemplate, MidTermTheme, LongTermGoal, Template } from '@/types'
-import { getThemeColor, addMinutes, addDays, minutesBetween } from '@/lib/utils'
+import { getThemeColor, addMinutes, addDays } from '@/lib/utils'
 import { CheckIcon, StarIcon, ChevronDownIcon, ChevronRightIcon, ChevronLeftIcon } from '@/components/Icons'
 
 interface Props {
@@ -171,11 +171,16 @@ export default function CalendarPanel({
     .filter(t => calView === 'timeGridWeek' ? true : t.date === selectedDate)
     .map(t => {
       const color = getThemeColor(t.relatedThemeId, themes, goals) ?? (t.isDone ? '#4b5563' : '#6366f1')
+      const [sh, sm] = t.startTime.split(':').map(Number)
+      const totalEndMin = sh * 60 + sm + t.estimatedMinutes
+      const endDate = totalEndMin >= 24 * 60 ? addDays(t.date, 1) : t.date
+      const endHH = String(Math.floor(totalEndMin / 60) % 24).padStart(2, '0')
+      const endMM = String(totalEndMin % 60).padStart(2, '0')
       return {
         id: t.id,
         title: t.title,
         start: `${t.date}T${t.startTime}`,
-        end: `${t.date}T${addMinutes(t.startTime, t.estimatedMinutes)}`,
+        end: `${endDate}T${endHH}:${endMM}`,
         backgroundColor: color,
         borderColor: color,
         extendedProps: { task: t },
@@ -346,14 +351,14 @@ export default function CalendarPanel({
           eventResize={info => {
             const date = info.event.startStr.slice(0, 10)
             const s = info.event.startStr.slice(11, 16)
-            const e = info.event.endStr.slice(11, 16)
-            onTaskUpdate(info.event.id, date, s, minutesBetween(s, e))
+            const mins = Math.round((info.event.end!.getTime() - info.event.start!.getTime()) / 60000)
+            onTaskUpdate(info.event.id, date, s, mins)
           }}
           eventDrop={info => {
             const date = info.event.startStr.slice(0, 10)
             const s = info.event.startStr.slice(11, 16)
-            const e = info.event.endStr.slice(11, 16)
-            onTaskUpdate(info.event.id, date, s, minutesBetween(s, e))
+            const mins = Math.round((info.event.end!.getTime() - info.event.start!.getTime()) / 60000)
+            onTaskUpdate(info.event.id, date, s, mins)
           }}
         />
       </div>
