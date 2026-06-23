@@ -168,7 +168,16 @@ export default function CalendarPanel({
   }
 
   const events = tasks
-    .filter(t => calView === 'timeGridWeek' ? true : t.date === selectedDate)
+    .filter(t => {
+      if (calView === 'timeGridWeek') return true
+      if (t.date === selectedDate) return true
+      // 前日から日付をまたいで selectedDate に入り込むタスクを含める
+      if (t.date === addDays(selectedDate, -1)) {
+        const [sh, sm] = t.startTime.split(':').map(Number)
+        return sh * 60 + sm + t.estimatedMinutes > 24 * 60
+      }
+      return false
+    })
     .map(t => {
       const color = getThemeColor(t.relatedThemeId, themes, goals) ?? (t.isDone ? '#4b5563' : '#6366f1')
       const [sh, sm] = t.startTime.split(':').map(Number)
