@@ -19,7 +19,7 @@ interface Props {
   onDateChange: (date: string) => void
   onTaskClick: (task: Task) => void
   onSlotClick: (date: string, time: string) => void
-  onTaskUpdate: (id: string, startTime: string, estimatedMinutes: number) => void
+  onTaskUpdate: (id: string, date: string, startTime: string, estimatedMinutes: number) => void
   onApplyTemplate: (entries: Template['entries']) => void
   onClearDay: (date: string) => void
 }
@@ -318,14 +318,16 @@ export default function CalendarPanel({
             onSlotClick(date, time)
           }}
           eventResize={info => {
+            const date = info.event.startStr.slice(0, 10)
             const s = info.event.startStr.slice(11, 16)
             const e = info.event.endStr.slice(11, 16)
-            onTaskUpdate(info.event.id, s, minutesBetween(s, e))
+            onTaskUpdate(info.event.id, date, s, minutesBetween(s, e))
           }}
           eventDrop={info => {
+            const date = info.event.startStr.slice(0, 10)
             const s = info.event.startStr.slice(11, 16)
             const e = info.event.endStr.slice(11, 16)
-            onTaskUpdate(info.event.id, s, minutesBetween(s, e))
+            onTaskUpdate(info.event.id, date, s, minutesBetween(s, e))
           }}
         />
       </div>

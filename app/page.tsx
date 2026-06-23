@@ -146,10 +146,10 @@ export default function Home() {
     if (userId) db.deleteTasksByDate(userId, date).catch(console.error)
   }
 
-  function handleTaskUpdate(id: string, startTime: string, estimatedMinutes: number) {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, startTime, estimatedMinutes } : t))
+  function handleTaskUpdate(id: string, date: string, startTime: string, estimatedMinutes: number) {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, date, startTime, estimatedMinutes } : t))
     const task = tasks.find(t => t.id === id)
-    if (task) db.upsertTask({ ...task, startTime, estimatedMinutes }).catch(console.error)
+    if (task) db.upsertTask({ ...task, date, startTime, estimatedMinutes }).catch(console.error)
   }
 
   const handleSaveTaskTemplate = useCallback((t: TaskTemplate) => {
