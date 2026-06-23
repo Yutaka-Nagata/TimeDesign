@@ -56,6 +56,15 @@ body {
   padding: 4px 0;
 }
 
+.fc .fc-col-header-cell a.fc-col-header-cell-cushion {
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.fc .fc-col-header-cell a.fc-col-header-cell-cushion:hover {
+  text-decoration: none;
+  opacity: 0.7;
+}
+
 .fc .fc-timegrid-slot {
   height: 24px;
 }
