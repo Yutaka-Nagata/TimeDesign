@@ -123,6 +123,19 @@ export default function CalendarPanel({
     return () => window.removeEventListener('pointermove', h)
   }, [])
 
+  // Sync FullCalendar's internal date/view with React state via imperative API
+  useEffect(() => {
+    const api = calRef.current?.getApi()
+    if (!api) return
+    const currentView = api.view.type
+    const currentDate = api.getDate().toLocaleDateString('sv')
+    if (currentView !== calView) {
+      api.changeView(calView, selectedDate)
+    } else if (currentDate !== selectedDate) {
+      api.gotoDate(selectedDate)
+    }
+  }, [calView, selectedDate])
+
   useDndMonitor({
     onDragMove(event) {
       const data = event.active.data.current as { type?: string; id?: string } | undefined
@@ -202,17 +215,31 @@ export default function CalendarPanel({
     const tpl = taskTemplates.find(t => t.id === ghostState.taskId)
     if (!tpl) return null
     const color = getThemeColor(tpl.relatedThemeId, themes, goals) ?? '#6366f1'
+    const [sh, sm] = ghostState.time.split(':').map(Number)
+    const totalEndMin = sh * 60 + sm + tpl.estimatedMinutes
+    const endDate = totalEndMin >= 24 * 60 ? addDays(ghostState.date, 1) : ghostState.date
+    const endHH = String(Math.floor(totalEndMin / 60) % 24).padStart(2, '0')
+    const endMM = String(totalEndMin % 60).padStart(2, '0')
     return {
       id: '__ghost__',
       title: tpl.title,
       start: `${ghostState.date}T${ghostState.time}`,
-      end: `${ghostState.date}T${addMinutes(ghostState.time, tpl.estimatedMinutes)}`,
+      end: `${endDate}T${endHH}:${endMM}`,
       backgroundColor: color + '55',
       borderColor: color + 'aa',
       editable: false,
       extendedProps: {
         isGhost: true,
-        task: { title: tpl.title, memo: tpl.memo, isDone: false, relatedThemeId: tpl.relatedThemeId } as Task,
+        task: {
+          id: '__ghost__',
+          date: ghostState.date,
+          startTime: ghostState.time,
+          title: tpl.title,
+          estimatedMinutes: tpl.estimatedMinutes,
+          memo: tpl.memo,
+          isDone: false,
+          relatedThemeId: tpl.relatedThemeId,
+        } as Task,
       },
     }
   })()
@@ -327,7 +354,6 @@ export default function CalendarPanel({
           plugins={[timeGridPlugin, interactionPlugin]}
           initialView={calView}
           initialDate={selectedDate}
-          key={selectedDate + calView}
           events={allEvents}
           headerToolbar={false}
           allDaySlot={false}

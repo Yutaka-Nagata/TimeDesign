@@ -45,7 +45,6 @@ function DragPreview({ taskTemplates }: { taskTemplates: TaskTemplate[] }) {
 
 export default function Home() {
   const router = useRouter()
-  const [userId, setUserId] = useState<string | null>(null)
   const [goals, setGoals] = useState<LongTermGoal[]>([])
   const [themes, setThemes] = useState<MidTermTheme[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
@@ -56,10 +55,20 @@ export default function Home() {
   const [sidebarPct, setSidebarPct] = useState(30)
   const [calendarPct, setCalendarPct] = useState(60)
   const [isMobile, setIsMobile] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const mousePos = useRef({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
   const resizing = useRef(false)
   const vertResizing = useRef(false)
+  // Ref mirrors tasks so event handlers always see the current value without stale closures
+  const tasksRef = useRef(tasks)
+  tasksRef.current = tasks
+
+  const showError = useCallback((msg: string) => {
+    setSaveError(msg)
+    setTimeout(() => setSaveError(null), 4000)
+  }, [])
 
   function startResize(e: React.PointerEvent) {
     e.preventDefault()
@@ -116,14 +125,15 @@ export default function Home() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { router.push('/auth'); return }
-      setUserId(session.user.id)
       Promise.all([
         db.getLongTermGoals().then(setGoals),
         db.getMidTermThemes().then(setThemes),
         db.getTasks().then(setTasks),
         db.getTaskTemplates().then(setTaskTemplates),
         db.getTemplates().then(setTemplates),
-      ]).catch(console.error)
+      ])
+        .catch(console.error)
+        .finally(() => setLoading(false))
     })
   }, [router])
 
@@ -133,23 +143,24 @@ export default function Home() {
       const exists = prev.find(t => t.id === toSave.id)
       return exists ? prev.map(t => t.id === toSave.id ? toSave : t) : [...prev, toSave]
     })
-    db.upsertTask(toSave).catch(console.error)
+    db.upsertTask(toSave).catch(() => showError('タスクの保存に失敗しました'))
   }
 
   function handleDeleteTask(id: string) {
     setTasks(prev => prev.filter(t => t.id !== id))
-    db.deleteTask(id).catch(console.error)
+    db.deleteTask(id).catch(() => showError('タスクの削除に失敗しました'))
   }
 
   function handleClearDay(dates: string[]) {
     setTasks(prev => prev.filter(t => !dates.includes(t.date)))
-    if (userId) db.deleteTasksByDates(userId, dates).catch(console.error)
+    db.deleteTasksByDates(dates).catch(() => showError('タスクの削除に失敗しました'))
   }
 
   function handleTaskUpdate(id: string, date: string, startTime: string, estimatedMinutes: number) {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, date, startTime, estimatedMinutes } : t))
-    const task = tasks.find(t => t.id === id)
-    if (task) db.upsertTask({ ...task, date, startTime, estimatedMinutes }).catch(console.error)
+    // Use tasksRef to avoid stale closure when reading other task fields for the DB write
+    const task = tasksRef.current.find(t => t.id === id)
+    if (task) db.upsertTask({ ...task, date, startTime, estimatedMinutes }).catch(() => showError('タスクの更新に失敗しました'))
   }
 
   const handleSaveTaskTemplate = useCallback((t: TaskTemplate) => {
@@ -157,13 +168,13 @@ export default function Home() {
       const exists = prev.find(x => x.id === t.id)
       return exists ? prev.map(x => x.id === t.id ? t : x) : [...prev, t]
     })
-    db.upsertTaskTemplate(t).catch(console.error)
-  }, [])
+    db.upsertTaskTemplate(t).catch(() => showError('テンプレートの保存に失敗しました'))
+  }, [showError])
 
   const handleDeleteTaskTemplate = useCallback((id: string) => {
     setTaskTemplates(prev => prev.filter(t => t.id !== id))
-    db.deleteTaskTemplate(id).catch(console.error)
-  }, [])
+    db.deleteTaskTemplate(id).catch(() => showError('テンプレートの削除に失敗しました'))
+  }, [showError])
 
   function handleApplyTemplate(entries: Template['entries']) {
     const newTasks: Task[] = entries.flatMap(entry => {
@@ -182,25 +193,25 @@ export default function Home() {
       }]
     })
     setTasks(prev => [...prev, ...newTasks])
-    db.upsertTasks(newTasks).catch(console.error)
+    db.upsertTasks(newTasks).catch(() => showError('テンプレートの適用に失敗しました'))
   }
 
   function getDropInfo(): { date: string; time: string } {
     const { x, y } = mousePos.current
-    let date = selectedDate
-    let time = '09:00'
+    let date: string | null = null
+    let time: string | null = null
     for (const el of document.elementsFromPoint(x, y)) {
-      if (time === '09:00') {
+      if (!time) {
         const slot = (el as HTMLElement).closest?.('[data-time]') as HTMLElement | null
         if (slot?.dataset.time) time = slot.dataset.time.slice(0, 5)
       }
-      if (date === selectedDate) {
+      if (!date) {
         const col = (el as HTMLElement).closest?.('[data-date]') as HTMLElement | null
         if (col?.dataset.date) date = col.dataset.date
       }
-      if (time !== '09:00' && date !== selectedDate) break
+      if (time && date) break
     }
-    return { date, time }
+    return { date: date ?? selectedDate, time: time ?? '09:00' }
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -222,7 +233,18 @@ export default function Home() {
       templateId: tpl.id,
     }
     setTasks(prev => [...prev, newTask])
-    db.upsertTask(newTask).catch(console.error)
+    db.upsertTask(newTask).catch(() => showError('タスクの作成に失敗しました'))
+  }
+
+  if (loading) {
+    return (
+      <div className="h-screen flex flex-col overflow-hidden">
+        <Nav />
+        <div className="flex-1 flex items-center justify-center">
+          <span className="text-sm" style={{ color: 'var(--text-muted)' }}>読み込み中...</span>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -306,6 +328,13 @@ export default function Home() {
           onDelete={handleDeleteTask}
           onClose={() => setModal(null)}
         />
+      )}
+
+      {saveError && (
+        <div className="fixed bottom-4 right-4 z-[100] px-4 py-3 rounded-xl text-sm font-medium shadow-lg"
+          style={{ background: '#ef4444', color: '#fff' }}>
+          {saveError}
+        </div>
       )}
     </div>
   )

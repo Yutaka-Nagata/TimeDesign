@@ -4,9 +4,9 @@ import { LongTermGoal, MidTermTheme, Task, TaskTemplate, Template } from '@/type
 // ── Helpers ───────────────────────────────────────────────────────────────
 
 async function uid(): Promise<string> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-  return user.id
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user) throw new Error('Not authenticated')
+  return session.user.id
 }
 
 // ── Row → TS mappers ──────────────────────────────────────────────────────
@@ -162,8 +162,9 @@ export async function deleteTask(id: string): Promise<void> {
   if (error) throw error
 }
 
-export async function deleteTasksByDates(userId: string, dates: string[]): Promise<void> {
+export async function deleteTasksByDates(dates: string[]): Promise<void> {
   if (!dates.length) return
+  const userId = await uid()
   const { error } = await supabase
     .from('tasks')
     .delete()
@@ -241,6 +242,57 @@ type BulkData = {
 export async function importAll(data: BulkData): Promise<void> {
   const userId = await uid()
 
+  // Snapshot before destructive delete so we can restore on failure
+  const backup = await exportAll()
+
+  async function insertBulk(d: BulkData) {
+    if (d.goals.length) {
+      const { error } = await supabase.from('long_term_goals').insert(
+        d.goals.map(g => ({ id: g.id, user_id: userId, title: g.title, color: g.color }))
+      )
+      if (error) throw error
+    }
+    if (d.themes.length) {
+      const { error } = await supabase.from('mid_term_themes').insert(
+        d.themes.map(t => ({
+          id: t.id, user_id: userId, title: t.title, related_goal_id: t.relatedGoalId || null,
+        }))
+      )
+      if (error) throw error
+    }
+    if (d.taskTemplates.length) {
+      const { error } = await supabase.from('task_templates').insert(
+        d.taskTemplates.map(t => ({
+          id: t.id, user_id: userId, title: t.title, estimated_minutes: t.estimatedMinutes,
+          memo: t.memo ?? '', related_theme_id: t.relatedThemeId || null,
+          template_type: t.templateType,
+          due_date: t.templateType === 'todo' ? (t.dueDate ?? null) : null,
+        }))
+      )
+      if (error) throw error
+    }
+    if (d.templates.length) {
+      const { error } = await supabase.from('templates').insert(
+        d.templates.map(t => ({
+          id: t.id, user_id: userId, name: t.name,
+          is_default: t.isDefault ?? false, entries: t.entries,
+        }))
+      )
+      if (error) throw error
+    }
+    if (d.tasks.length) {
+      const { error } = await supabase.from('tasks').insert(
+        d.tasks.map(task => ({
+          id: task.id, user_id: userId, date: task.date, start_time: task.startTime,
+          title: task.title, estimated_minutes: task.estimatedMinutes, memo: task.memo ?? '',
+          related_theme_id: task.relatedThemeId || null, is_done: task.isDone,
+          template_id: task.templateId ?? null,
+        }))
+      )
+      if (error) throw error
+    }
+  }
+
   // Delete existing data (order matters: tasks before templates/themes/goals)
   await supabase.from('tasks').delete().eq('user_id', userId)
   await supabase.from('task_templates').delete().eq('user_id', userId)
@@ -248,50 +300,12 @@ export async function importAll(data: BulkData): Promise<void> {
   await supabase.from('mid_term_themes').delete().eq('user_id', userId)
   await supabase.from('long_term_goals').delete().eq('user_id', userId)
 
-  if (data.goals.length) {
-    const { error } = await supabase.from('long_term_goals').insert(
-      data.goals.map(g => ({ id: g.id, user_id: userId, title: g.title, color: g.color }))
-    )
-    if (error) throw error
-  }
-  if (data.themes.length) {
-    const { error } = await supabase.from('mid_term_themes').insert(
-      data.themes.map(t => ({
-        id: t.id, user_id: userId, title: t.title, related_goal_id: t.relatedGoalId || null,
-      }))
-    )
-    if (error) throw error
-  }
-  if (data.taskTemplates.length) {
-    const { error } = await supabase.from('task_templates').insert(
-      data.taskTemplates.map(t => ({
-        id: t.id, user_id: userId, title: t.title, estimated_minutes: t.estimatedMinutes,
-        memo: t.memo ?? '', related_theme_id: t.relatedThemeId || null,
-        template_type: t.templateType,
-        due_date: t.templateType === 'todo' ? (t.dueDate ?? null) : null,
-      }))
-    )
-    if (error) throw error
-  }
-  if (data.templates.length) {
-    const { error } = await supabase.from('templates').insert(
-      data.templates.map(t => ({
-        id: t.id, user_id: userId, name: t.name,
-        is_default: t.isDefault ?? false, entries: t.entries,
-      }))
-    )
-    if (error) throw error
-  }
-  if (data.tasks.length) {
-    const { error } = await supabase.from('tasks').insert(
-      data.tasks.map(task => ({
-        id: task.id, user_id: userId, date: task.date, start_time: task.startTime,
-        title: task.title, estimated_minutes: task.estimatedMinutes, memo: task.memo ?? '',
-        related_theme_id: task.relatedThemeId || null, is_done: task.isDone,
-        template_id: task.templateId ?? null,
-      }))
-    )
-    if (error) throw error
+  try {
+    await insertBulk(data)
+  } catch (e) {
+    // Best-effort restore from backup
+    await insertBulk(backup).catch(() => {})
+    throw e
   }
 }
 
