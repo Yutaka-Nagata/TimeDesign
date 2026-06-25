@@ -9,6 +9,7 @@ import { Template, TemplateEntry, TaskTemplate, MidTermTheme, LongTermGoal } fro
 import { TrashIcon, XmarkIcon } from '@/components/Icons'
 import { getThemeColor, addMinutes, formatDuration, sortThemesByGoal } from '@/lib/utils'
 import { v4 as uuid } from 'uuid'
+import TaskArea from '@/components/TaskArea'
 
 const DUMMY_DATE = '2000-01-01'
 
@@ -18,7 +19,8 @@ interface Props {
   themes: MidTermTheme[]
   goals: LongTermGoal[]
   onSave: (t: Template) => void
-  onAddTaskTemplate?: (t: TaskTemplate) => void
+  onSaveTaskTemplate?: (t: TaskTemplate) => void
+  onDeleteTaskTemplate?: (id: string) => void
   onClose: () => void
 }
 
@@ -59,20 +61,6 @@ function EventContent({ info }: { info: EventContentArg }) {
   )
 }
 
-function DraggableLibraryCard({ tpl, color }: { tpl: TaskTemplate; color?: string }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: tpl.id,
-    data: { type: 'taskTemplate', id: tpl.id },
-  })
-  return (
-    <div ref={setNodeRef} {...listeners} {...attributes}
-      className="flex items-center justify-between px-2 py-1.5 rounded-lg cursor-grab active:cursor-grabbing text-xs select-none transition-opacity"
-      style={{ background: 'var(--surface2)', border: `1px solid ${color ?? 'var(--border)'}`, opacity: isDragging ? 0.4 : 1 }}>
-      <span className="truncate font-medium">{tpl.title}</span>
-      <span className="ml-2 shrink-0" style={{ color: 'var(--text-muted)' }}>{tpl.estimatedMinutes}m</span>
-    </div>
-  )
-}
 
 function TemplateDragPreview({ taskTemplates }: { taskTemplates: TaskTemplate[] }) {
   const [active, setActive] = useState<TaskTemplate | null>(null)
@@ -345,7 +333,7 @@ function SlotModal({
   )
 }
 
-export default function TemplateEditorModal({ template, taskTemplates: initialTemplates, themes, goals, onSave, onAddTaskTemplate, onClose }: Props) {
+export default function TemplateEditorModal({ template, taskTemplates: initialTemplates, themes, goals, onSave, onSaveTaskTemplate, onDeleteTaskTemplate, onClose }: Props) {
   const [name, setName] = useState(template?.name ?? '')
   const [entries, setEntries] = useState<TemplateEntry[]>(template?.entries ?? [])
   const [taskTemplates, setTaskTemplates] = useState<TaskTemplate[]>(initialTemplates)
@@ -380,6 +368,7 @@ export default function TemplateEditorModal({ template, taskTemplates: initialTe
       }
       setTaskTemplates(prev => prev.map(t => t.id === updatedTpl.id ? updatedTpl : t))
       setEntries(prev => prev.map((e, i) => i === slotModal.existingIndex ? { taskId: updatedTpl.id, startTime } : e))
+      onSaveTaskTemplate?.(updatedTpl)
     } else {
       // Create new TaskTemplate and entry
       const newTpl: TaskTemplate = {
@@ -391,7 +380,7 @@ export default function TemplateEditorModal({ template, taskTemplates: initialTe
         templateType: 'reusable',
       }
       setTaskTemplates(prev => [...prev, newTpl])
-      onAddTaskTemplate?.(newTpl)
+      onSaveTaskTemplate?.(newTpl)
       setEntries(prev => [...prev, { taskId: newTpl.id, startTime }])
     }
   }
@@ -453,11 +442,24 @@ export default function TemplateEditorModal({ template, taskTemplates: initialTe
             <div className="px-3 py-2 text-xs border-b shrink-0" style={{ color: 'var(--text-muted)', borderColor: 'var(--border)' }}>
               ドラッグ or カレンダーをクリックして追加
             </div>
-            <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
-              {taskTemplates.filter(tpl => tpl.templateType === 'reusable').map(tpl => {
-                const color = getThemeColor(tpl.relatedThemeId, themes, goals)
-                return <DraggableLibraryCard key={tpl.id} tpl={tpl} color={color} />
-              })}
+            <div className="flex-1 overflow-y-auto p-3">
+              <TaskArea
+                taskTemplates={taskTemplates}
+                themes={themes}
+                goals={goals}
+                show="reuse"
+                onSaveTaskTemplate={t => {
+                  setTaskTemplates(prev => {
+                    const exists = prev.find(x => x.id === t.id)
+                    return exists ? prev.map(x => x.id === t.id ? t : x) : [...prev, t]
+                  })
+                  onSaveTaskTemplate?.(t)
+                }}
+                onDeleteTaskTemplate={id => {
+                  setTaskTemplates(prev => prev.filter(t => t.id !== id))
+                  onDeleteTaskTemplate?.(id)
+                }}
+              />
             </div>
           </div>
         </div>

@@ -54,11 +54,6 @@ export default function SettingsPage() {
       return next
     })
   }
-  function handleAddTaskTemplate(t: TaskTemplate) {
-    setTaskTemplates(prev => [...prev, t])
-    db.upsertTaskTemplate(t).catch(console.error)
-  }
-
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <Nav />
@@ -126,7 +121,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    {tpl.entries.map((entry, i) => {
+                    {[...tpl.entries].sort((a, b) => a.startTime.localeCompare(b.startTime)).map((entry, i) => {
                       const tTask = taskTemplates.find(t => t.id === entry.taskId)
                       const color = tTask ? getThemeColor(tTask.relatedThemeId, themes, goals) : undefined
                       return (
@@ -161,7 +156,17 @@ export default function SettingsPage() {
           themes={themes}
           goals={goals}
           onSave={handleSaveTemplate}
-          onAddTaskTemplate={handleAddTaskTemplate}
+          onSaveTaskTemplate={t => {
+            setTaskTemplates(prev => {
+              const exists = prev.find(x => x.id === t.id)
+              return exists ? prev.map(x => x.id === t.id ? t : x) : [...prev, t]
+            })
+            db.upsertTaskTemplate(t).catch(console.error)
+          }}
+          onDeleteTaskTemplate={id => {
+            setTaskTemplates(prev => prev.filter(t => t.id !== id))
+            db.deleteTaskTemplate(id).catch(console.error)
+          }}
           onClose={() => setEditor(null)}
         />
       )}
