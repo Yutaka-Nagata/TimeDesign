@@ -13,8 +13,15 @@ export default function AuthPage() {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) router.replace('/')
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) { router.replace('/'); return }
+      if (process.env.NEXT_PUBLIC_DEV_AUTO_LOGIN === 'true') {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: 'dev@example.com',
+          password: 'dev123456',
+        })
+        if (!error) { router.replace('/'); return }
+      }
     })
   }, [router])
 

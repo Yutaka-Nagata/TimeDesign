@@ -433,8 +433,22 @@ export default function TemplateEditorModal({ template, taskTemplates: initialTe
 
       <DndContext collisionDetection={pointerWithin}>
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
-          {/* left: task library */}
-          <div className="md:w-52 shrink-0 flex flex-col overflow-hidden border-b md:border-b-0 md:border-r"
+          {/* calendar: top on mobile (order-1), right on desktop (order-2) */}
+          <div className="order-1 md:order-2 flex-1 min-h-0 overflow-hidden flex flex-col">
+            <CalendarArea
+              entries={entries}
+              taskTemplates={taskTemplates}
+              themes={themes}
+              goals={goals}
+              onSlotClick={handleSlotClick}
+              onEventClick={handleEventClick}
+              onEventDrop={handleEventDrop}
+              onDrop={handleDrop}
+            />
+          </div>
+
+          {/* task library: bottom on mobile (order-2), left on desktop (order-1) */}
+          <div className="order-2 md:order-1 h-44 md:h-auto md:w-52 shrink-0 flex flex-col overflow-hidden border-t md:border-t-0 md:border-r"
             style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
             <div className="px-3 py-2 text-xs border-b shrink-0" style={{ color: 'var(--text-muted)', borderColor: 'var(--border)' }}>
               ドラッグ or カレンダーをクリックして追加
@@ -446,18 +460,6 @@ export default function TemplateEditorModal({ template, taskTemplates: initialTe
               })}
             </div>
           </div>
-
-          {/* right: calendar */}
-          <CalendarArea
-            entries={entries}
-            taskTemplates={taskTemplates}
-            themes={themes}
-            goals={goals}
-            onSlotClick={handleSlotClick}
-            onEventClick={handleEventClick}
-            onEventDrop={handleEventDrop}
-            onDrop={handleDrop}
-          />
         </div>
         <TemplateDragPreview taskTemplates={taskTemplates} />
       </DndContext>

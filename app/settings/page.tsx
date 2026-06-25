@@ -232,7 +232,12 @@ function DataManagement() {
         setImportSuccess(true)
         if (fileRef.current) fileRef.current.value = ''
       } catch (err) {
-        setImportError(err instanceof Error ? err.message : '読み込みに失敗しました')
+        const msg = err instanceof Error
+          ? err.message
+          : (err != null && typeof err === 'object' && 'message' in err)
+            ? String((err as { message: unknown }).message)
+            : '読み込みに失敗しました'
+        setImportError(msg)
       } finally {
         setImporting(false)
       }

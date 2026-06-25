@@ -242,8 +242,37 @@ type BulkData = {
 export async function importAll(data: BulkData): Promise<void> {
   const userId = await uid()
 
-  // Snapshot before destructive delete so we can restore on failure
-  const backup = await exportAll()
+  // Remap all IDs to new UUIDs to avoid PK conflicts with other users' rows
+  const newId = () => crypto.randomUUID()
+  const goalMap = new Map(data.goals.map(g => [g.id, newId()]))
+  const themeMap = new Map(data.themes.map(t => [t.id, newId()]))
+  const tplMap = new Map(data.taskTemplates.map(t => [t.id, newId()]))
+  const schedMap = new Map(data.templates.map(t => [t.id, newId()]))
+
+  const remapped: BulkData = {
+    goals: data.goals.map(g => ({ ...g, id: goalMap.get(g.id)! })),
+    themes: data.themes.map(t => ({
+      ...t,
+      id: themeMap.get(t.id)!,
+      relatedGoalId: goalMap.get(t.relatedGoalId) ?? t.relatedGoalId,
+    })),
+    taskTemplates: data.taskTemplates.map(t => ({
+      ...t,
+      id: tplMap.get(t.id)!,
+      relatedThemeId: themeMap.get(t.relatedThemeId ?? '') ?? t.relatedThemeId,
+    })),
+    templates: data.templates.map(t => ({
+      ...t,
+      id: schedMap.get(t.id)!,
+      entries: t.entries.map(e => ({ ...e, taskId: tplMap.get(e.taskId) ?? e.taskId })),
+    })),
+    tasks: data.tasks.map(task => ({
+      ...task,
+      id: newId(),
+      relatedThemeId: themeMap.get(task.relatedThemeId ?? '') ?? task.relatedThemeId,
+      templateId: task.templateId ? (tplMap.get(task.templateId) ?? task.templateId) : undefined,
+    })),
+  }
 
   async function insertBulk(d: BulkData) {
     if (d.goals.length) {
@@ -293,20 +322,19 @@ export async function importAll(data: BulkData): Promise<void> {
     }
   }
 
-  // Delete existing data (order matters: tasks before templates/themes/goals)
-  await supabase.from('tasks').delete().eq('user_id', userId)
-  await supabase.from('task_templates').delete().eq('user_id', userId)
-  await supabase.from('templates').delete().eq('user_id', userId)
-  await supabase.from('mid_term_themes').delete().eq('user_id', userId)
-  await supabase.from('long_term_goals').delete().eq('user_id', userId)
-
-  try {
-    await insertBulk(data)
-  } catch (e) {
-    // Best-effort restore from backup
-    await insertBulk(backup).catch(() => {})
-    throw e
+  // Delete current user's data, then insert remapped data
+  const delResults = await Promise.all([
+    supabase.from('tasks').delete().eq('user_id', userId),
+    supabase.from('task_templates').delete().eq('user_id', userId),
+    supabase.from('templates').delete().eq('user_id', userId),
+    supabase.from('mid_term_themes').delete().eq('user_id', userId),
+    supabase.from('long_term_goals').delete().eq('user_id', userId),
+  ])
+  for (const { error } of delResults) {
+    if (error) throw error
   }
+
+  await insertBulk(remapped)
 }
 
 export async function exportAll(): Promise<BulkData> {
