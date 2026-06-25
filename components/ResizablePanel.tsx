@@ -35,6 +35,7 @@ export default function ResizablePanel({
 
   function startWidthResize(e: React.PointerEvent) {
     e.preventDefault()
+    e.currentTarget.setPointerCapture(e.pointerId)
     const startX = e.clientX
     const startWidth = width
     const onMove = (ev: PointerEvent) => {
@@ -50,6 +51,7 @@ export default function ResizablePanel({
 
   function startHeightResize(e: React.PointerEvent) {
     e.preventDefault()
+    e.currentTarget.setPointerCapture(e.pointerId)
     const startY = e.clientY
     const startHeight = height
     const onMove = (ev: PointerEvent) => {

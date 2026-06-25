@@ -25,12 +25,12 @@ interface Props {
   onClose: () => void
 }
 
-function resolveEntry(entry: TemplateEntry, taskTemplates: TaskTemplate[], themes: MidTermTheme[], goals: LongTermGoal[]) {
+function resolveEntry(entry: TemplateEntry, index: number, taskTemplates: TaskTemplate[], themes: MidTermTheme[], goals: LongTermGoal[]) {
   const tpl = taskTemplates.find(t => t.id === entry.taskId)
   if (!tpl) return null
   const color = getThemeColor(tpl.relatedThemeId, themes, goals) ?? '#6366f1'
   return {
-    id: entry.taskId + '_' + entry.startTime,
+    id: String(index),  // index-based stable ID — encodes taskId in ID causes snap-back on drop
     title: tpl.title,
     start: `${DUMMY_DATE}T${entry.startTime}`,
     end: `${DUMMY_DATE}T${addMinutes(entry.startTime, tpl.estimatedMinutes)}`,
@@ -88,7 +88,7 @@ function TemplateDragPreview({ taskTemplates }: { taskTemplates: TaskTemplate[] 
 
 function CalendarArea({
   entries, taskTemplates, themes, goals,
-  onSlotClick, onEventClick, onEventDrop, onDrop,
+  onSlotClick, onEventClick, onEventDrop, onEventResize, onDrop,
 }: {
   entries: TemplateEntry[]
   taskTemplates: TaskTemplate[]
@@ -96,7 +96,8 @@ function CalendarArea({
   goals: LongTermGoal[]
   onSlotClick: (time: string) => void
   onEventClick: (entry: TemplateEntry, tpl: TaskTemplate, index: number) => void
-  onEventDrop: (eventId: string, newStart: string) => void
+  onEventDrop: (index: number, newStart: string) => void
+  onEventResize: (index: number, newStart: string, newMinutes: number) => void
   onDrop: (taskId: string, time: string) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: 'template-calendar' })
@@ -147,7 +148,7 @@ function CalendarArea({
   })
 
   const events = entries
-    .map(e => resolveEntry(e, taskTemplates, themes, goals))
+    .map((e, i) => resolveEntry(e, i, taskTemplates, themes, goals))
     .filter(Boolean) as NonNullable<ReturnType<typeof resolveEntry>>[]
 
   const ghostEvent = (() => {
@@ -187,17 +188,27 @@ function CalendarArea({
         slotEventOverlap={false}
         nowIndicator={false}
         editable
-        selectable
+        eventResizableFromStart
+        selectable={false}
         dayHeaders={false}
         eventContent={info => <EventContent info={info} />}
         dateClick={info => onSlotClick(info.dateStr.slice(11, 16))}
         eventClick={info => {
           if (info.event.id === '__ghost__') return
+          const index = Number(info.event.id)
           const { entry, tpl } = info.event.extendedProps as { entry: TemplateEntry; tpl: TaskTemplate }
-          const index = entries.findIndex(e => e.taskId === entry.taskId && e.startTime === entry.startTime)
           onEventClick(entry, tpl, index)
         }}
-        eventDrop={info => onEventDrop(info.event.id, info.event.startStr.slice(11, 16))}
+        eventDrop={info => {
+          const index = Number(info.event.id)
+          onEventDrop(index, info.event.startStr.slice(11, 16))
+        }}
+        eventResize={info => {
+          const index = Number(info.event.id)
+          const newStart = info.event.startStr.slice(11, 16)
+          const newMinutes = Math.round((info.event.end!.getTime() - info.event.start!.getTime()) / 60000)
+          onEventResize(index, newStart, newMinutes)
+        }}
       />
     </div>
   )
@@ -396,9 +407,22 @@ export default function TemplateEditorModal({ template, taskTemplates: initialTe
     setSlotModal(null)
   }
 
-  function handleEventDrop(eventId: string, newStart: string) {
-    const oldStart = eventId.split('_').slice(1).join('_')
-    setEntries(prev => prev.map(e => e.startTime === oldStart ? { ...e, startTime: newStart } : e))
+  function handleEventDrop(index: number, newStart: string) {
+    setEntries(prev => prev.map((e, i) => i === index ? { ...e, startTime: newStart } : e))
+  }
+
+  function handleEventResize(index: number, newStart: string, newMinutes: number) {
+    const entry = entries[index]
+    if (!entry) return
+    const tpl = taskTemplates.find(t => t.id === entry.taskId)
+    if (!tpl) return
+    const updatedTpl = { ...tpl, estimatedMinutes: newMinutes }
+    setTaskTemplates(prev => prev.map(t => t.id === entry.taskId ? updatedTpl : t))
+    onSaveTaskTemplate?.(updatedTpl)
+    // startTime changes when resizing from the top
+    if (newStart !== entry.startTime) {
+      setEntries(prev => prev.map((e, i) => i === index ? { ...e, startTime: newStart } : e))
+    }
   }
 
   function handleDrop(taskId: string, time: string) {
@@ -438,6 +462,7 @@ export default function TemplateEditorModal({ template, taskTemplates: initialTe
               onSlotClick={handleSlotClick}
               onEventClick={handleEventClick}
               onEventDrop={handleEventDrop}
+              onEventResize={handleEventResize}
               onDrop={handleDrop}
             />
           </div>
