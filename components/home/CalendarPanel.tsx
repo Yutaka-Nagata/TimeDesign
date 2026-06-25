@@ -198,17 +198,13 @@ export default function CalendarPanel({
       const endDate = totalEndMin >= 24 * 60 ? addDays(t.date, 1) : t.date
       const endHH = String(Math.floor(totalEndMin / 60) % 24).padStart(2, '0')
       const endMM = String(totalEndMin % 60).padStart(2, '0')
-      // In day view, a cross-midnight task whose start is on the previous day must have its
-      // start clamped to 00:00 of the displayed date so FullCalendar renders the overflow portion.
-      const isOverflow = calView === 'timeGridDay' && t.date !== selectedDate
       return {
         id: t.id,
         title: t.title,
-        start: isOverflow ? `${selectedDate}T00:00` : `${t.date}T${t.startTime}`,
+        start: `${t.date}T${t.startTime}`,
         end: `${endDate}T${endHH}:${endMM}`,
         backgroundColor: color,
         borderColor: color,
-        editable: !isOverflow,
         extendedProps: { task: t },
       }
     })
@@ -354,6 +350,7 @@ export default function CalendarPanel({
       {/* カレンダー */}
       <div className="flex-1 overflow-hidden px-3 sm:px-1 pb-3">
         <FullCalendar
+          key={calView === 'timeGridDay' ? selectedDate : calView}
           ref={calRef}
           plugins={[timeGridPlugin, interactionPlugin]}
           initialView={calView}
