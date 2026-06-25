@@ -10,6 +10,7 @@ import { TrashIcon, XmarkIcon } from '@/components/Icons'
 import { getThemeColor, addMinutes, formatDuration, sortThemesByGoal } from '@/lib/utils'
 import { v4 as uuid } from 'uuid'
 import TaskArea from '@/components/TaskArea'
+import ResizablePanel from '@/components/ResizablePanel'
 
 const DUMMY_DATE = '2000-01-01'
 
@@ -442,31 +443,40 @@ export default function TemplateEditorModal({ template, taskTemplates: initialTe
           </div>
 
           {/* task library: bottom on mobile (order-2), left on desktop (order-1) */}
-          <div className="order-2 md:order-1 h-44 md:h-auto md:w-52 shrink-0 flex flex-col overflow-hidden border-t md:border-t-0 md:border-r"
-            style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-            <div className="px-3 py-2 text-xs border-b shrink-0" style={{ color: 'var(--text-muted)', borderColor: 'var(--border)' }}>
-              ドラッグ or カレンダーをクリックして追加
+          <ResizablePanel
+            className="order-2 md:order-1 shrink-0"
+            defaultWidth={208}
+            defaultHeight={176}
+            minWidth={160}
+            maxWidth={400}
+            minHeight={100}
+            maxHeight={400}
+          >
+            <div className="flex flex-col h-full" style={{ background: 'var(--surface)' }}>
+              <div className="px-3 py-2 text-xs border-b shrink-0" style={{ color: 'var(--text-muted)', borderColor: 'var(--border)' }}>
+                ドラッグ or カレンダーをクリックして追加
+              </div>
+              <div className="flex-1 overflow-y-auto p-3">
+                <TaskArea
+                  taskTemplates={taskTemplates}
+                  themes={themes}
+                  goals={goals}
+                  show="reuse"
+                  onSaveTaskTemplate={t => {
+                    setTaskTemplates(prev => {
+                      const exists = prev.find(x => x.id === t.id)
+                      return exists ? prev.map(x => x.id === t.id ? t : x) : [...prev, t]
+                    })
+                    onSaveTaskTemplate?.(t)
+                  }}
+                  onDeleteTaskTemplate={id => {
+                    setTaskTemplates(prev => prev.filter(t => t.id !== id))
+                    onDeleteTaskTemplate?.(id)
+                  }}
+                />
+              </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-3">
-              <TaskArea
-                taskTemplates={taskTemplates}
-                themes={themes}
-                goals={goals}
-                show="reuse"
-                onSaveTaskTemplate={t => {
-                  setTaskTemplates(prev => {
-                    const exists = prev.find(x => x.id === t.id)
-                    return exists ? prev.map(x => x.id === t.id ? t : x) : [...prev, t]
-                  })
-                  onSaveTaskTemplate?.(t)
-                }}
-                onDeleteTaskTemplate={id => {
-                  setTaskTemplates(prev => prev.filter(t => t.id !== id))
-                  onDeleteTaskTemplate?.(id)
-                }}
-              />
-            </div>
-          </div>
+          </ResizablePanel>
         </div>
         <TemplateDragPreview taskTemplates={taskTemplates} />
       </DndContext>

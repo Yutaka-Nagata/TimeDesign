@@ -18,7 +18,7 @@ export default function LeftPanel({ taskTemplates, templates, themes, goals, onS
   const [tab, setTab] = useState<'library' | 'template'>('library')
 
   return (
-    <div className="flex flex-col h-full" style={{ background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
+    <div className="flex flex-col h-full" style={{ background: 'var(--surface)' }}>
       {/* Tabs */}
       <div className="flex border-b shrink-0" style={{ borderColor: 'var(--border)' }}>
         {([['library', 'タスク'], ['template', 'テンプレ']] as const).map(([key, label]) => (
