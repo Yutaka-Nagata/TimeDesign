@@ -41,8 +41,10 @@ export default function CompactTaskModal({
     setForm(p => ({ ...p, [k]: v }))
   }
 
+  const minutesValid = form.estimatedMinutes >= 5
+
   function handleSave() {
-    if (!form.title.trim()) return
+    if (!form.title.trim() || !minutesValid) return
     onSave(form)
     onClose()
   }
@@ -55,7 +57,7 @@ export default function CompactTaskModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'rgba(0,0,0,0.55)' }}
-      onClick={e => e.target === e.currentTarget && onClose()}>
+      onMouseDown={e => e.target === e.currentTarget && onClose()}>
 
       <div className="rounded-2xl shadow-2xl overflow-hidden w-full mx-4 sm:mx-0 sm:w-[480px]"
         style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
@@ -124,13 +126,16 @@ export default function CompactTaskModal({
           <span style={{ color: 'var(--text-muted)' }}>→</span>
           <span className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>{endTime}</span>
           <span className="text-sm font-mono" style={{ color: 'var(--text-muted)' }}>{duration}</span>
-          <div className="flex items-center gap-1 ml-auto">
-            <input type="number" min={5} max={480} step={5}
-              value={form.estimatedMinutes}
-              onChange={e => set('estimatedMinutes', Math.max(5, Number(e.target.value)))}
-              className="w-16 px-2 py-2 rounded-lg text-sm text-center"
-              style={{ background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text)', outline: 'none' }} />
-            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>分</span>
+          <div className="flex flex-col items-end gap-0.5">
+            <div className="flex items-center gap-1">
+              <input type="number" min={5} max={480} step={5}
+                value={form.estimatedMinutes}
+                onChange={e => set('estimatedMinutes', Number(e.target.value))}
+                className="w-16 px-2 py-2 rounded-lg text-sm text-center"
+                style={{ background: 'var(--surface2)', border: `1px solid ${!minutesValid ? '#ef4444' : 'var(--border)'}`, color: 'var(--text)', outline: 'none' }} />
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>分</span>
+            </div>
+            {!minutesValid && <span className="text-xs" style={{ color: '#ef4444' }}>5以上の値を入力</span>}
           </div>
           <input type="date" value={form.date}
             onChange={e => set('date', e.target.value)}
@@ -165,7 +170,8 @@ export default function CompactTaskModal({
             className="px-4 py-2 rounded-lg text-sm"
             style={{ color: 'var(--text-muted)' }}>キャンセル</button>
           <button type="button" onClick={handleSave}
-            className="px-5 py-2 rounded-lg text-sm font-semibold transition-opacity hover:opacity-90"
+            disabled={!form.title.trim() || !minutesValid}
+            className="px-5 py-2 rounded-lg text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-40"
             style={{ background: color ?? 'var(--accent)', color: '#fff' }}>
             保存
           </button>

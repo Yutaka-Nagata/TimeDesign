@@ -26,9 +26,11 @@ export default function TaskTemplateModal({ taskTemplate, defaultType, themes, g
   })
   const set = <K extends keyof typeof form>(k: K, v: typeof form[K]) => setForm(p => ({ ...p, [k]: v }))
 
+  const minutesValid = form.estimatedMinutes >= 5
+
   function submit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.title.trim()) return
+    if (!form.title.trim() || !minutesValid) return
     const base = { id: form.id, title: form.title, estimatedMinutes: form.estimatedMinutes, memo: form.memo, relatedThemeId: form.relatedThemeId }
     const t: TaskTemplate = form.templateType === 'todo'
       ? { ...base, templateType: 'todo', dueDate: form.dueDate || undefined }
@@ -41,7 +43,7 @@ export default function TaskTemplateModal({ taskTemplate, defaultType, themes, g
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)' }}
-      onClick={e => e.target === e.currentTarget && onClose()}>
+      onMouseDown={e => e.target === e.currentTarget && onClose()}>
       <div className="rounded-xl shadow-2xl p-5 flex flex-col gap-3 w-full mx-4 sm:mx-0 sm:w-[400px]"
         style={{ background: 'var(--surface)', border: '1px solid var(--border)', maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="flex items-center justify-between">
@@ -68,7 +70,9 @@ export default function TaskTemplateModal({ taskTemplate, defaultType, themes, g
           <div className="flex flex-col gap-1">
             <label className="text-xs" style={{ color: 'var(--text-muted)' }}>見積もり時間（分）</label>
             <input type="number" min={5} step={5} value={form.estimatedMinutes}
-              onChange={e => set('estimatedMinutes', Number(e.target.value))} style={inputStyle} />
+              onChange={e => set('estimatedMinutes', Number(e.target.value))}
+              style={{ ...inputStyle, border: `1px solid ${!minutesValid ? '#ef4444' : 'var(--border)'}` }} />
+            {!minutesValid && <span className="text-xs" style={{ color: '#ef4444' }}>5以上の値を入力してください</span>}
           </div>
 
           {form.templateType === 'todo' && (
@@ -92,7 +96,8 @@ export default function TaskTemplateModal({ taskTemplate, defaultType, themes, g
           </div>
 
           <div className="flex gap-2 mt-1">
-            <button type="submit" className="flex-1 py-2 rounded-lg text-sm font-semibold"
+            <button type="submit" disabled={!form.title.trim() || !minutesValid}
+              className="flex-1 py-2 rounded-lg text-sm font-semibold disabled:opacity-40"
               style={{ background: 'var(--accent)', color: '#fff' }}>
               {taskTemplate ? '更新' : '追加'}
             </button>
